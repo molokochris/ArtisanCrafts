@@ -135,7 +135,7 @@ function Navbar({ page, onNavigate }: { page: Page; onNavigate: (p: Page) => voi
     <header className="sticky top-0 z-50 bg-background border-b border-border">
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
         {/* Logo */}
-        <button onClick={() => onNavigate("home")} className="flex items-center gap-2">
+        <button onClick={() => onNavigate("home")} className="flex items-center gap-2 cursor-pointer hover:opacity-75 transition-opacity">
           <div className="w-7 h-7 border-2 border-foreground rounded-sm flex items-center justify-center">
             <div className="w-3 h-3 bg-foreground rounded-sm" />
           </div>
