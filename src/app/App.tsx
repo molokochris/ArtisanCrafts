@@ -1,4 +1,4 @@
-import { useState, createContext, useContext } from "react";
+import { useState, useRef, createContext, useContext } from "react";
 import {
   Search,
   ShoppingBag,
@@ -3024,34 +3024,55 @@ function StyleGuidePage() {
 
 function FidelitySwitcher() {
   const { mode, setMode } = useFidelity();
+  const [open, setOpen] = useState(false);
+  const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const options: { key: Fidelity; label: string }[] = [
     { key: "wireframe", label: "Wireframe" },
     { key: "hifi", label: "High-Fidelity" },
     { key: "interactive", label: "Interactive" },
   ];
 
+  const handleEnter = () => {
+    if (leaveTimer.current) clearTimeout(leaveTimer.current);
+    setOpen(true);
+  };
+
+  const handleLeave = () => {
+    leaveTimer.current = setTimeout(() => setOpen(false), 120);
+  };
+
   return (
-    <div className="fixed top-3 right-3 z-[60] max-w-[calc(100vw-1rem)] sm:max-w-none">
-      <div className="group relative inline-flex">
-        <div className="flex items-center gap-2 rounded-full border border-border bg-background/95 py-1 pl-2 pr-3 shadow-lg backdrop-blur-sm transition-all hover:border-foreground hover:bg-background">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">Mode</span>
+    <div className="fixed bottom-5 left-3 z-[60] max-w-[calc(100vw-1rem)] sm:max-w-none">
+      <div
+        className="relative inline-flex"
+        onMouseEnter={handleEnter}
+        onMouseLeave={handleLeave}
+      >
+        {/* Dropdown — opens upward */}
+        {open && (
+          <div className="absolute left-0 bottom-full mb-2 min-w-[11rem] overflow-hidden rounded-2xl border border-border bg-background/98 p-1 shadow-xl backdrop-blur-sm sm:min-w-[12rem]">
+            {options.map((o) => (
+              <button
+                key={o.key}
+                onClick={() => { setMode(o.key); setOpen(false); }}
+                className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[12px] font-medium uppercase tracking-[0.08em] transition-colors ${
+                  mode === o.key ? "bg-foreground text-background" : "text-foreground hover:bg-muted"
+                }`}
+              >
+                <span>{o.label}</span>
+                {mode === o.key ? <span className="text-[10px] font-semibold">Current</span> : null}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Trigger pill */}
+        <div className="flex cursor-pointer items-center gap-2 rounded-full border border-border bg-background/95 py-1 pl-2 pr-3 shadow-lg backdrop-blur-sm transition-all hover:border-foreground hover:bg-background">
+          <span className="hidden sm:inline text-[10px] font-semibold uppercase tracking-[0.3em] text-muted-foreground">Mode</span>
           <span className="rounded-full bg-foreground px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-background shadow-sm">
             {options.find((o) => o.key === mode)?.label}
           </span>
-        </div>
-
-        <div className="pointer-events-none absolute right-0 top-full mt-2 hidden min-w-[11rem] overflow-hidden rounded-2xl border border-border bg-background/98 p-1 shadow-xl backdrop-blur-sm opacity-0 transition-all duration-200 group-hover:block group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:block group-focus-within:pointer-events-auto group-focus-within:opacity-100 sm:min-w-[12rem]">
-          {options.map((o) => (
-            <button
-              key={o.key}
-              onClick={() => setMode(o.key)}
-              className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-[12px] font-medium uppercase tracking-[0.08em] transition-colors ${mode === o.key ? "bg-foreground text-background" : "text-foreground hover:bg-muted"
-                }`}
-            >
-              <span>{o.label}</span>
-              {mode === o.key ? <span className="text-[10px] font-semibold">Current</span> : null}
-            </button>
-          ))}
         </div>
       </div>
     </div>
